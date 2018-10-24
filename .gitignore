@@ -10,3 +10,33 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+cover.html
+.idea
+
+# Dependecies directory 
+vendor
+
+# Linux .directory settings
+.directory
+
+# vscode settings directory
+.vscode
+.idea
+
+# executables
+main
+debug
+event_registration
+
+# release zip
+events_be_binaries.zip
+
+# Docker Compose
+docker-compose.yml
+
+# SQLite database files
+*.db
+
+# Uploaded files
+*.jpg
+*.png
