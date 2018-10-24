@@ -28,7 +28,7 @@ func AuthenticationHandler(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusBadRequest)
 			errorMap["code"] = http.StatusBadRequest
 			errorMap["message"] = "no user id header provided"
-			json.NewEncoder(w).Encode(errorMap)
+			_ = json.NewEncoder(w).Encode(errorMap)
 			return
 		}
 
@@ -38,7 +38,7 @@ func AuthenticationHandler(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			errorMap["code"] = http.StatusServiceUnavailable
 			errorMap["message"] = "application has not been setup properly"
-			json.NewEncoder(w).Encode(errorMap)
+			_ = json.NewEncoder(w).Encode(errorMap)
 			return
 		}
 
@@ -49,7 +49,7 @@ func AuthenticationHandler(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusNetworkAuthenticationRequired)
 			errorMap["code"] = http.StatusNetworkAuthenticationRequired
 			errorMap["message"] = "authorization header is required"
-			json.NewEncoder(w).Encode(errorMap)
+			_ = json.NewEncoder(w).Encode(errorMap)
 			return
 		}
 
@@ -60,7 +60,7 @@ func AuthenticationHandler(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 			errorMap["code"] = http.StatusUnauthorized
 			errorMap["message"] = "unauthorized request"
-			json.NewEncoder(w).Encode(errorMap)
+			_ = json.NewEncoder(w).Encode(errorMap)
 			return
 		}
 

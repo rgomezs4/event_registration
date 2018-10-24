@@ -3,13 +3,14 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"github.com/rgomezs4/event_registration/data"
-	"github.com/rgomezs4/event_registration/data/model"
-	"github.com/rgomezs4/event_registration/engine"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/rgomezs4/event_registration/data"
+	"github.com/rgomezs4/event_registration/data/model"
+	"github.com/rgomezs4/event_registration/engine"
 )
 
 // Order handles every /order/xxx request
@@ -74,7 +75,7 @@ func (or Order) create(w http.ResponseWriter, r *http.Request) {
 
 	order.ID, err = db.Order.InsertHeader(tx, data.Data.UserID, order)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -82,7 +83,7 @@ func (or Order) create(w http.ResponseWriter, r *http.Request) {
 	for i := range order.Detail {
 		order.Detail[i].ID, err = db.Order.InsertDetail(tx, order.ID, order.Detail[i])
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 			return
 		}
@@ -93,7 +94,7 @@ func (or Order) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusCreated, order)
+	_ = engine.Respond(w, r, http.StatusCreated, order)
 }
 
 func (or Order) find(w http.ResponseWriter, r *http.Request) {
@@ -116,20 +117,20 @@ func (or Order) find(w http.ResponseWriter, r *http.Request) {
 
 	order, err := db.Order.FindHeader(tx, orderID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
 
 	if order == nil {
-		tx.Commit()
+		_ = tx.Rollback()
 		newError(errors.New("order not found"), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	}
 
 	order.Detail, err = db.Order.FindDetail(tx, orderID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -139,7 +140,7 @@ func (or Order) find(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, order)
+	_ = engine.Respond(w, r, http.StatusOK, order)
 }
 
 func (or Order) getByUserID(w http.ResponseWriter, r *http.Request) {
@@ -162,7 +163,7 @@ func (or Order) getByUserID(w http.ResponseWriter, r *http.Request) {
 
 	order, err := db.Order.GetOrdersByID(tx, userID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -176,7 +177,7 @@ func (or Order) getByUserID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, order)
+	_ = engine.Respond(w, r, http.StatusOK, order)
 }
 
 func (or Order) getTotals(w http.ResponseWriter, r *http.Request) {
@@ -199,7 +200,7 @@ func (or Order) getTotals(w http.ResponseWriter, r *http.Request) {
 
 	quantity, total, err := db.Order.GetTotalsByUser(tx, userID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -213,5 +214,5 @@ func (or Order) getTotals(w http.ResponseWriter, r *http.Request) {
 	mresp["quantity"] = quantity
 	mresp["total"] = total
 
-	engine.Respond(w, r, http.StatusOK, mresp)
+	_ = engine.Respond(w, r, http.StatusOK, mresp)
 }

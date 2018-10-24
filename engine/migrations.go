@@ -19,12 +19,12 @@ func ResetTestMigrations() error {
 	basepath := filepath.Dir(b)
 	basepath = strings.Replace(basepath, "/engine", "/migrations", -1)
 	m, err := migrate.New("file:///"+basepath, "postgres://xgmethyc:h2KYmnYJ15ZezhXWOB5NzwFBCNK55P7D@stampy.db.elephantsql.com:5432/xgmethyc")
-	defer m.Close()
 
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
+	defer m.Close()
 
 	if err := m.Drop(); err != nil {
 		return err

@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/rgomezs4/event_registration/data"
-	"github.com/rgomezs4/event_registration/data/model"
-	"github.com/rgomezs4/event_registration/engine"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/rgomezs4/event_registration/data"
+	"github.com/rgomezs4/event_registration/data/model"
+	"github.com/rgomezs4/event_registration/engine"
 )
 
 // Product handles every request /product/xxx
@@ -76,7 +77,7 @@ func (pr Product) create(w http.ResponseWriter, r *http.Request) {
 
 	product.ID, err = db.Product.Insert(tx, product)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -85,7 +86,7 @@ func (pr Product) create(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusCreated, product)
+	_ = engine.Respond(w, r, http.StatusCreated, product)
 }
 
 func (pr Product) all(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +103,7 @@ func (pr Product) all(w http.ResponseWriter, r *http.Request) {
 
 	products, err := db.Product.All(tx)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -116,7 +117,7 @@ func (pr Product) all(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, products)
+	_ = engine.Respond(w, r, http.StatusOK, products)
 }
 
 func (pr Product) find(w http.ResponseWriter, r *http.Request) {
@@ -139,13 +140,13 @@ func (pr Product) find(w http.ResponseWriter, r *http.Request) {
 
 	product, err := db.Product.Find(tx, productID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
 
 	if product == nil {
-		tx.Commit()
+		_ = tx.Commit()
 		newError(errors.New("product not found"), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -155,7 +156,7 @@ func (pr Product) find(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, product)
+	_ = engine.Respond(w, r, http.StatusOK, product)
 }
 
 func (pr Product) findByBarcode(w http.ResponseWriter, r *http.Request) {
@@ -174,13 +175,13 @@ func (pr Product) findByBarcode(w http.ResponseWriter, r *http.Request) {
 
 	product, err := db.Product.FindByBarcode(tx, barcode)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
 
 	if product == nil {
-		tx.Commit()
+		_ = tx.Commit()
 		newError(errors.New("product not found"), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -190,7 +191,7 @@ func (pr Product) findByBarcode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, product)
+	_ = engine.Respond(w, r, http.StatusOK, product)
 }
 
 func (pr Product) update(w http.ResponseWriter, r *http.Request) {
@@ -227,11 +228,11 @@ func (pr Product) update(w http.ResponseWriter, r *http.Request) {
 	p, err := db.Product.Update(tx, productID, product)
 	switch {
 	case err == sql.ErrNoRows:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(fmt.Errorf("User with id %d not found", productID), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	case err != nil:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -240,5 +241,5 @@ func (pr Product) update(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusOK, p)
+	_ = engine.Respond(w, r, http.StatusOK, p)
 }

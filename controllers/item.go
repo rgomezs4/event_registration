@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/rgomezs4/event_registration/data"
-	"github.com/rgomezs4/event_registration/data/model"
-	"github.com/rgomezs4/event_registration/engine"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/rgomezs4/event_registration/data"
+	"github.com/rgomezs4/event_registration/data/model"
+	"github.com/rgomezs4/event_registration/engine"
 )
 
 // Item handles every request /item/xxx
@@ -64,7 +65,7 @@ func (it Item) create(w http.ResponseWriter, r *http.Request) {
 
 	item.ID, err = db.Item.InsertItem(tx, item)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -73,7 +74,7 @@ func (it Item) create(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusCreated, item)
+	_ = engine.Respond(w, r, http.StatusCreated, item)
 }
 
 func (it Item) all(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +91,7 @@ func (it Item) all(w http.ResponseWriter, r *http.Request) {
 
 	items, err := db.Item.AllItems(tx)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -100,5 +101,5 @@ func (it Item) all(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, items)
+	_ = engine.Respond(w, r, http.StatusOK, items)
 }

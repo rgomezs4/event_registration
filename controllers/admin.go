@@ -5,13 +5,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/rgomezs4/event_registration/data"
-	"github.com/rgomezs4/event_registration/data/model"
-	"github.com/rgomezs4/event_registration/engine"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/rgomezs4/event_registration/data"
+	"github.com/rgomezs4/event_registration/data/model"
+	"github.com/rgomezs4/event_registration/engine"
 )
 
 // Admin handles every request /admin/xxx
@@ -77,7 +78,7 @@ func (ad Admin) create(w http.ResponseWriter, r *http.Request) {
 
 	admin.ID, err = db.Admin.Insert(tx, admin)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -86,7 +87,7 @@ func (ad Admin) create(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusCreated, admin)
+	_ = engine.Respond(w, r, http.StatusCreated, admin)
 }
 
 func (ad Admin) find(w http.ResponseWriter, r *http.Request) {
@@ -109,13 +110,13 @@ func (ad Admin) find(w http.ResponseWriter, r *http.Request) {
 
 	admin, err := db.Admin.Find(tx, adminID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
 
 	if admin == nil {
-		tx.Commit()
+		_ = tx.Commit()
 		newError(errors.New("admin not found"), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -124,7 +125,7 @@ func (ad Admin) find(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusOK, admin)
+	_ = engine.Respond(w, r, http.StatusOK, admin)
 }
 
 func (ad Admin) update(w http.ResponseWriter, r *http.Request) {
@@ -161,11 +162,11 @@ func (ad Admin) update(w http.ResponseWriter, r *http.Request) {
 	a, err := db.Admin.Update(tx, adminID, admin)
 	switch {
 	case err == sql.ErrNoRows:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(fmt.Errorf("User with id %d not found", adminID), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	case err != nil:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -174,7 +175,7 @@ func (ad Admin) update(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusOK, a)
+	_ = engine.Respond(w, r, http.StatusOK, a)
 }
 
 func (ad Admin) login(w http.ResponseWriter, r *http.Request) {
@@ -221,7 +222,7 @@ func (ad Admin) login(w http.ResponseWriter, r *http.Request) {
 
 	ctx = context.WithValue(ctx, engine.ContextAuth, a.ID)
 
-	engine.Respond(w, r.WithContext(ctx), http.StatusOK, a)
+	_ = engine.Respond(w, r.WithContext(ctx), http.StatusOK, a)
 }
 
 func (ad Admin) updatePassword(w http.ResponseWriter, r *http.Request) {
@@ -256,7 +257,7 @@ func (ad Admin) updatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.Admin.UpdatePassword(tx, id, login.Password); err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -267,5 +268,5 @@ func (ad Admin) updatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	var response = make(map[string]string)
 	response["message"] = "Password updated successfully"
-	engine.Respond(w, r, http.StatusOK, response)
+	_ = engine.Respond(w, r, http.StatusOK, response)
 }

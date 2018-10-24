@@ -41,9 +41,10 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		userID, err := strconv.Atoi(uID)
 		if err != nil {
 			next = newError(fmt.Errorf("path not found"), http.StatusNotFound)
-		} else {
-			ctx = context.WithValue(ctx, engine.ContextAuth, userID)
+			next.Handler.ServeHTTP(w, r.WithContext(ctx))
+			return
 		}
+		ctx = context.WithValue(ctx, engine.ContextAuth, userID)
 	}
 
 	head, r.URL.Path = engine.ShiftPath(r.URL.Path)
@@ -79,7 +80,7 @@ func health() *engine.Route {
 	return &engine.Route{
 		Logger: true,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			engine.Respond(w, r, http.StatusOK, res)
+			_ = engine.Respond(w, r, http.StatusOK, res)
 		}),
 	}
 }
@@ -88,7 +89,7 @@ func newError(err error, statusCode int) *engine.Route {
 	return &engine.Route{
 		Logger: true,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			engine.Respond(w, r, statusCode, err)
+			_ = engine.Respond(w, r, statusCode, err)
 		}),
 	}
 }
@@ -102,9 +103,9 @@ func saveFile(w http.ResponseWriter, r *http.Request, file multipart.File, handl
 
 	err = ioutil.WriteFile("./files/"+handle.Filename, data, 0666)
 	if err != nil {
-		engine.Respond(w, r, http.StatusBadRequest, err)
+		_ = engine.Respond(w, r, http.StatusBadRequest, err)
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, handle.Filename)
+	_ = engine.Respond(w, r, http.StatusOK, handle.Filename)
 }

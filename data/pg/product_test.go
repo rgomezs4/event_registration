@@ -6,8 +6,6 @@ import (
 	"github.com/rgomezs4/event_registration/data/model"
 )
 
-var productKey model.Key
-
 func TestProductInsert(t *testing.T) {
 	p := Product{}
 	tx, err := db.Begin()

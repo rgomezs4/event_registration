@@ -6,15 +6,16 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/rgomezs4/event_registration/data"
-	"github.com/rgomezs4/event_registration/data/model"
-	"github.com/rgomezs4/event_registration/engine"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/rgomezs4/event_registration/data"
+	"github.com/rgomezs4/event_registration/data/model"
+	"github.com/rgomezs4/event_registration/engine"
 )
 
 // Person handles every request /person/xxx
@@ -90,7 +91,7 @@ func (pe Person) create(w http.ResponseWriter, r *http.Request) {
 
 	person.ID, err = db.Person.Insert(tx, data.Data.UserID, person)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -99,7 +100,7 @@ func (pe Person) create(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusCreated, person)
+	_ = engine.Respond(w, r, http.StatusCreated, person)
 }
 
 func (pe Person) find(w http.ResponseWriter, r *http.Request) {
@@ -122,13 +123,13 @@ func (pe Person) find(w http.ResponseWriter, r *http.Request) {
 
 	person, err := db.Person.Find(tx, personID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
 
 	if person == nil {
-		tx.Commit()
+		_ = tx.Commit()
 		newError(errors.New("person not found"), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -138,7 +139,7 @@ func (pe Person) find(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, person)
+	_ = engine.Respond(w, r, http.StatusOK, person)
 }
 
 func (pe Person) all(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +156,7 @@ func (pe Person) all(w http.ResponseWriter, r *http.Request) {
 
 	persons, err := db.Person.All(tx)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -165,7 +166,7 @@ func (pe Person) all(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, persons)
+	_ = engine.Respond(w, r, http.StatusOK, persons)
 }
 
 func (pe Person) update(w http.ResponseWriter, r *http.Request) {
@@ -202,11 +203,11 @@ func (pe Person) update(w http.ResponseWriter, r *http.Request) {
 	p, err := db.Person.Update(tx, personID, data.Data.UserID, person)
 	switch {
 	case err == sql.ErrNoRows:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(fmt.Errorf("User with id %d not found", personID), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	case err != nil:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -215,7 +216,7 @@ func (pe Person) update(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusOK, p)
+	_ = engine.Respond(w, r, http.StatusOK, p)
 }
 
 func (pe Person) upload(w http.ResponseWriter, r *http.Request) {
@@ -226,7 +227,7 @@ func (pe Person) upload(w http.ResponseWriter, r *http.Request) {
 	handle.Filename = filename + "." + fileextension
 
 	if err != nil {
-		engine.Respond(w, r, http.StatusBadRequest, "The format file is not valid.")
+		_ = engine.Respond(w, r, http.StatusBadRequest, "The format file is not valid.")
 		return
 	}
 	defer file.Close()
@@ -238,7 +239,7 @@ func (pe Person) upload(w http.ResponseWriter, r *http.Request) {
 	case "image/png":
 		saveFile(w, r, file, handle)
 	default:
-		engine.Respond(w, r, http.StatusBadRequest, "The format file is not valid.")
+		_ = engine.Respond(w, r, http.StatusBadRequest, "The format file is not valid.")
 	}
 
 }
@@ -272,11 +273,11 @@ func (pe Person) register(w http.ResponseWriter, r *http.Request) {
 	err = db.Person.Register(tx, person.PersonID, data.Data.UserID, person.Image)
 	switch {
 	case err == sql.ErrNoRows:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(fmt.Errorf("User with id %d not found", person.PersonID), http.StatusNotFound).Handler.ServeHTTP(w, r)
 		return
 	case err != nil:
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -289,7 +290,7 @@ func (pe Person) register(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err = db.Item.InsertPersonItem(tx, pi, data.Data.UserID)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 			return
 		}
@@ -299,7 +300,7 @@ func (pe Person) register(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	engine.Respond(w, r, http.StatusOK, "registered succesfully")
+	_ = engine.Respond(w, r, http.StatusOK, "registered succesfully")
 }
 
 func (pe Person) getItems(w http.ResponseWriter, r *http.Request) {
@@ -322,7 +323,7 @@ func (pe Person) getItems(w http.ResponseWriter, r *http.Request) {
 
 	items, err := db.Item.PersonItems(tx, personID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
@@ -336,7 +337,7 @@ func (pe Person) getItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, items)
+	_ = engine.Respond(w, r, http.StatusOK, items)
 }
 
 func (pe Person) getImage(w http.ResponseWriter, r *http.Request) {
@@ -350,7 +351,7 @@ func (pe Person) getImage(w http.ResponseWriter, r *http.Request) {
 	imgFile, err := os.Open("./files/" + imageName) // a QR code image
 
 	if err != nil {
-		engine.Respond(w, r, http.StatusOK, err)
+		_ = engine.Respond(w, r, http.StatusOK, err)
 		return
 	}
 
@@ -363,7 +364,7 @@ func (pe Person) getImage(w http.ResponseWriter, r *http.Request) {
 
 	// read file content into buffer
 	fReader := bufio.NewReader(imgFile)
-	fReader.Read(buf)
+	_, _ = fReader.Read(buf)
 
 	// if you create a new image instead of loading from file, encode the image to buffer instead with png.Encode()
 
@@ -375,5 +376,5 @@ func (pe Person) getImage(w http.ResponseWriter, r *http.Request) {
 	mresponse := make(map[string]string)
 	mresponse["image"] = imgBase64Str
 
-	engine.Respond(w, r, http.StatusOK, mresponse)
+	_ = engine.Respond(w, r, http.StatusOK, mresponse)
 }
