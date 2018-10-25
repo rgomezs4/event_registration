@@ -103,7 +103,7 @@ func TestPerson_update(t *testing.T) {
 }
 
 func TestPerson_register(t *testing.T) {
-	payload := []byte(`{"data":{"type":"login","user_id":3,"attributes":{"id":111,"image":"asistee_two.png","items":[{"id":1}]}}}`)
+	payload := []byte(`{"data":{"type":"login","user_id":1,"attributes":{"id":111,"image":"asistee_two.png","items":[{"id":1}]}}}`)
 	req, err := http.NewRequest("POST", "/person/register", bytes.NewBuffer(payload))
 	checkError(t, err)
 
