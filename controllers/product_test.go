@@ -15,6 +15,7 @@ func TestProduct_create(t *testing.T) {
 
 	req, err := http.NewRequest("POST", "/product", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
@@ -37,12 +38,13 @@ func TestProduct_create(t *testing.T) {
 func TestProduct_find(t *testing.T) {
 	req, err := http.NewRequest("GET", "/product?id=1", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
-	var product model.Product
+	product := &model.Product{}
 	if status := rec.Code; status != http.StatusOK {
 		t.Fatalf("returns status %v was expecting %v", status, http.StatusOK)
 	}
@@ -59,12 +61,13 @@ func TestProduct_find(t *testing.T) {
 func TestProduct_findBarcode(t *testing.T) {
 	req, err := http.NewRequest("GET", "/product?barcode=123456", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
-	var product model.Product
+	product := &model.Product{}
 	if status := rec.Code; status != http.StatusOK {
 		t.Fatalf("returns status %v was expecting %v", status, http.StatusOK)
 	}
@@ -81,12 +84,13 @@ func TestProduct_findBarcode(t *testing.T) {
 func TestProduct_all(t *testing.T) {
 	req, err := http.NewRequest("GET", "/product", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
-	var products []model.Product
+	products := &[]model.Product{}
 	if status := rec.Code; status != http.StatusOK {
 		t.Fatalf("returns status %v was expecting %v", status, http.StatusCreated)
 	}
@@ -95,8 +99,8 @@ func TestProduct_all(t *testing.T) {
 		t.Fatalf("Could not parse the response body %v", err)
 	}
 
-	if len(products) == 0 {
-		t.Errorf("expected at least 1 item to return got %d", len(products))
+	if len(*products) == 0 {
+		t.Errorf("expected at least 1 item to return got %d", len(*products))
 	}
 }
 
@@ -105,14 +109,15 @@ func TestProduct_update(t *testing.T) {
 
 	req, err := http.NewRequest("PUT", "/product?id=1", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
 	product := &model.Product{}
-	if status := rec.Code; status != http.StatusCreated {
-		t.Fatalf("returns status %v was expecting %v", status, http.StatusCreated)
+	if status := rec.Code; status != http.StatusOK {
+		t.Fatalf("returns status %v was expecting %v", status, http.StatusOK)
 	}
 
 	if err := json.Unmarshal(body, product); err != nil {

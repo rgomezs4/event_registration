@@ -15,6 +15,7 @@ func TestOrder_create(t *testing.T) {
 
 	req, err := http.NewRequest("POST", "/order", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
@@ -37,12 +38,13 @@ func TestOrder_create(t *testing.T) {
 func TestOrder_find(t *testing.T) {
 	req, err := http.NewRequest("GET", "/order?id=1", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
-	var order model.OrderHeader
+	order := &model.OrderHeader{}
 	if status := rec.Code; status != http.StatusOK {
 		t.Fatalf("returns status %v was expecting %v", status, http.StatusOK)
 	}
@@ -59,12 +61,13 @@ func TestOrder_find(t *testing.T) {
 func TestOrder_userOrders(t *testing.T) {
 	req, err := http.NewRequest("GET", "/order?user_id=1", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
-	var order []model.OrderHeader
+	order := &[]model.OrderHeader{}
 	if status := rec.Code; status != http.StatusOK {
 		t.Fatalf("returns status %v was expecting %v", status, http.StatusOK)
 	}
@@ -73,14 +76,15 @@ func TestOrder_userOrders(t *testing.T) {
 		t.Fatalf("Could not parse the response body %v", err)
 	}
 
-	if len(order) == 0 {
-		t.Errorf("Returns %d expecting >= %d", len(order), 1)
+	if len(*order) == 0 {
+		t.Errorf("Returns %d expecting >= %d", len(*order), 1)
 	}
 }
 
 func TestOrder_totals(t *testing.T) {
 	req, err := http.NewRequest("GET", "/order/totals?user_id=1", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	checkError(t, err)

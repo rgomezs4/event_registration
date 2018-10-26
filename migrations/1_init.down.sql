@@ -9,7 +9,7 @@
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: 
 --
 
--- DROP EXTENSION IF EXISTS pgcrypto;
+DROP EXTENSION IF EXISTS pgcrypto;
 
 SET default_tablespace = '';
 

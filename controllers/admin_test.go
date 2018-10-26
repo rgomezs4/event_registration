@@ -15,6 +15,7 @@ func TestAdmin_create(t *testing.T) {
 
 	req, err := http.NewRequest("POST", "/admin", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
@@ -37,12 +38,13 @@ func TestAdmin_create(t *testing.T) {
 func TestAdmin_find(t *testing.T) {
 	req, err := http.NewRequest("GET", "/admin?id=1", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
-	var admin model.Admin
+	admin := &model.Admin{}
 	if status := rec.Code; status != http.StatusOK {
 		t.Fatalf("returns status %v was expecting %v", status, http.StatusCreated)
 	}
@@ -61,6 +63,7 @@ func TestAdmin_update(t *testing.T) {
 
 	req, err := http.NewRequest("PUT", "/admin?id=1", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
@@ -85,6 +88,7 @@ func TestAdmin_login(t *testing.T) {
 
 	req, err := http.NewRequest("POST", "/admin/login", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
@@ -107,8 +111,9 @@ func TestAdmin_login(t *testing.T) {
 func TestAdmin_updatePassword(t *testing.T) {
 	payload := []byte(`{"data":{"type":"login","attributes":{"username":"user1","password":"654321"}}}`)
 
-	req, err := http.NewRequest("PUT", "/admin/password", bytes.NewBuffer(payload))
+	req, err := http.NewRequest("PUT", "/admin/password?id=1", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	checkError(t, err)

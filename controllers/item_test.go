@@ -15,6 +15,7 @@ func TestItem_create(t *testing.T) {
 
 	req, err := http.NewRequest("POST", "/item", bytes.NewBuffer(payload))
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
@@ -37,12 +38,13 @@ func TestItem_create(t *testing.T) {
 func TestItem_all(t *testing.T) {
 	req, err := http.NewRequest("GET", "/item", nil)
 	checkError(t, err)
+	req.Header.Add("AUTH_USER_ID", "1")
 
 	rec := executeRequest(req)
 	body, err := ioutil.ReadAll(rec.Body)
 	checkError(t, err)
 
-	var items []model.Item
+	items := &[]model.Item{}
 	if status := rec.Code; status != http.StatusOK {
 		t.Fatalf("returns status %v was expecting %v", status, http.StatusCreated)
 	}
@@ -51,7 +53,7 @@ func TestItem_all(t *testing.T) {
 		t.Fatalf("Could not parse the response body %v", err)
 	}
 
-	if len(items) == 0 {
-		t.Errorf("expected at least 1 item to return got %d", len(items))
+	if len(*items) == 0 {
+		t.Errorf("expected at least 1 item to return got %d", len(*items))
 	}
 }

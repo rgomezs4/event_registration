@@ -13,7 +13,7 @@ import (
 var db *sql.DB
 
 func TestMain(m *testing.M) {
-	conn, err := model.Open("postgres", "postgres://xgmethyc:h2KYmnYJ15ZezhXWOB5NzwFBCNK55P7D@stampy.db.elephantsql.com:5432/xgmethyc") // local/test instance
+	conn, err := model.Open("postgres", "postgres://postgres:abc123@142.93.56.8:5432/events_test?sslmode=disable") // local/test instance
 	if err != nil {
 		fmt.Println(err)
 	}
