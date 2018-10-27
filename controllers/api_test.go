@@ -14,7 +14,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	if err := engine.ResetTestMigrations(); err != nil {
+	if err := engine.ResetTestMigrations("controllers"); err != nil {
 		fmt.Println(err, " migration error")
 	}
 
@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 }
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
-	conn, err := model.Open("postgres", "postgres://postgres:abc123@142.93.56.8:5432/events_test?sslmode=disable")
+	conn, err := model.Open("postgres", "postgres://postgres:abc123@142.93.56.8:5432/event_controller_test?sslmode=disable")
 	if err != nil {
 		log.Fatal("error while connecting to db ", err)
 	}
@@ -57,7 +57,7 @@ func setTestEnviromentalVars() {
 	os.Setenv("APP_PORT", "3158")
 	os.Setenv("APP_NAME", "events")
 	os.Setenv("APP_DB_DRIVER", "postgres")
-	os.Setenv("APP_DB_SOURCE", "postgres://postgres:abc123@142.93.56.8:5432/events_test?sslmode=disable")
+	os.Setenv("APP_DB_SOURCE", "postgres://postgres:abc123@142.93.56.8:5432/event_controller_test?sslmode=disable")
 	os.Setenv("APP_KEY", "secret")
 }
 

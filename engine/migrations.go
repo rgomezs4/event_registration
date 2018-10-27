@@ -14,11 +14,19 @@ import (
 )
 
 // ResetTestMigrations reverts and runs every migration on /migrations folder
-func ResetTestMigrations() error {
+func ResetTestMigrations(source string) error {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
 	basepath = strings.Replace(basepath, "/engine", "/migrations", -1)
-	m, err := migrate.New("file:///"+basepath, "postgres://postgres:abc123@142.93.56.8:5432/events_test?sslmode=disable")
+
+	db := ""
+	if source == "controllers" {
+		db = "postgres://postgres:abc123@142.93.56.8:5432/event_controller_test?sslmode=disable"
+	} else {
+		db = "postgres://postgres:abc123@142.93.56.8:5432/event_data_test?sslmode=disable"
+	}
+
+	m, err := migrate.New("file:///"+basepath, db)
 
 	if err != nil {
 		fmt.Println(err)
@@ -27,8 +35,9 @@ func ResetTestMigrations() error {
 	defer m.Close()
 
 	if err := m.Drop(); err != nil {
-		return err
+		fmt.Println(err)
 	}
+	
 	// Migrate all the way up ...
 	if err := m.Up(); err != nil {
 		return err
