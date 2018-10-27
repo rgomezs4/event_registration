@@ -35,7 +35,6 @@ func ResetTestMigrations(source string) error {
 	defer m.Close()
 
 	if err := m.Drop(); err != nil {
-		fmt.Println(err)
 	}
 
 	// Migrate all the way up ...
