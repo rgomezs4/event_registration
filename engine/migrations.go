@@ -21,9 +21,9 @@ func ResetTestMigrations(source string) error {
 
 	db := ""
 	if source == "controllers" {
-		db = "postgres://postgres:abc123@142.93.56.8:5432/event_controller_test?sslmode=disable"
+		db = "postgres://postgres:abc123@142.93.56.8:5432/c_test?sslmode=disable"
 	} else {
-		db = "postgres://postgres:abc123@142.93.56.8:5432/event_data_test?sslmode=disable"
+		db = "postgres://postgres:abc123@142.93.56.8:5432/d_test?sslmode=disable"
 	}
 
 	m, err := migrate.New("file:///"+basepath, db)
@@ -37,7 +37,7 @@ func ResetTestMigrations(source string) error {
 	if err := m.Drop(); err != nil {
 		fmt.Println(err)
 	}
-	
+
 	// Migrate all the way up ...
 	if err := m.Up(); err != nil {
 		return err
