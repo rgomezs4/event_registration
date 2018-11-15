@@ -60,7 +60,7 @@ func (i *Item) InsertPersonItem(tx *sql.Tx, item model.PersonItem, userID model.
 	return id, nil
 }
 
-// PersonItems get person asociated items by personID
+// PersonItems get person associated items by personID
 func (i *Item) PersonItems(tx *sql.Tx, personID model.Key) ([]model.PersonItem, error) {
 	sqlStatement := `SELECT pi.id, pi.person_id, pi.item_id, i.name, pi.created_by
 	FROM public.person_item as pi
