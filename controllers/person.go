@@ -300,7 +300,7 @@ func (pe Person) register(w http.ResponseWriter, r *http.Request) {
 		newError(err, http.StatusInternalServerError).Handler.ServeHTTP(w, r)
 		return
 	}
-	_ = engine.Respond(w, r, http.StatusOK, "registered succesfully")
+	_ = engine.Respond(w, r, http.StatusOK, "registered successfully")
 }
 
 func (pe Person) getItems(w http.ResponseWriter, r *http.Request) {
