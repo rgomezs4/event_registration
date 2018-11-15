@@ -38,6 +38,6 @@ func ResetTestMigrations(source string) error {
 	}
 
 	// Migrate all the way up ...
-	err = m.Up();
+	err = m.Up()
 	return err
 }
