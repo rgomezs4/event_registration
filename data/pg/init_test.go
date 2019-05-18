@@ -13,7 +13,9 @@ import (
 var db *sql.DB
 
 func TestMain(m *testing.M) {
-	conn, err := model.Open("postgres", "postgres://postgres:abc123@142.93.56.8:5432/d_test?sslmode=disable") // local/test instance
+	dbSource := os.Getenv("APP_DB_SOURCE_M")
+	dbDriver := os.Getenv("APP_DB_DRIVER")
+	conn, err := model.Open(dbDriver, dbSource)
 	if err != nil {
 		fmt.Println(err)
 	}

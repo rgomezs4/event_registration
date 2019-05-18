@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 }
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
-	dbSource := os.Getenv("APP_DB_SOURCE")
+	dbSource := os.Getenv("APP_DB_SOURCE_C")
 	dbDriver := os.Getenv("APP_DB_DRIVER")
 	conn, err := model.Open(dbDriver, dbSource)
 	if err != nil {

@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -21,9 +22,9 @@ func ResetTestMigrations(source string) error {
 
 	db := ""
 	if source == "controllers" {
-		db = "postgres://postgres:abc123@142.93.56.8:5432/c_test?sslmode=disable"
+		db = os.Getenv("APP_DB_SOURCE_C")
 	} else {
-		db = "postgres://postgres:abc123@142.93.56.8:5432/d_test?sslmode=disable"
+		db = os.Getenv("APP_DB_SOURCE_M")
 	}
 
 	m, err := migrate.New("file:///"+basepath, db)
