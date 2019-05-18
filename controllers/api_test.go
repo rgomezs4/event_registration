@@ -22,7 +22,9 @@ func TestMain(m *testing.M) {
 }
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
-	conn, err := model.Open("postgres", "postgres://postgres:abc123@142.93.56.8:5432/c_test?sslmode=disable")
+	dbSource := os.Getenv("APP_DB_SOURCE")
+	dbDriver := os.Getenv("APP_DB_DRIVER")
+	conn, err := model.Open(dbDriver, dbSource)
 	if err != nil {
 		log.Fatal("error while connecting to db ", err)
 	}
@@ -51,14 +53,6 @@ func authenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 	})
-}
-
-func setTestEnviromentalVars() {
-	os.Setenv("APP_PORT", "3158")
-	os.Setenv("APP_NAME", "events")
-	os.Setenv("APP_DB_DRIVER", "postgres")
-	os.Setenv("APP_DB_SOURCE", "postgres://postgres:abc123@142.93.56.8:5432/c_test?sslmode=disable")
-	os.Setenv("APP_KEY", "secret")
 }
 
 func checkError(t *testing.T, err error) {
